@@ -24,10 +24,7 @@ namespace PuzzleSolvent
             bitmap.StreamSource = ms;
             bitmap.EndInit();
 
-            AddChild(new System.Windows.Controls.Image() { Name="ButtonImage", Source = bitmap, Margin = new Thickness(1) });
-
-            Width = bitmap.Width;
-            Height = bitmap.Height;
+            AddChild(new System.Windows.Controls.Image() { Name="ButtonImage", Source = bitmap, Stretch=Stretch.Uniform, Margin = new Thickness(0) });
         }
 
         internal void swapChildren(ImageSplit secondBox)

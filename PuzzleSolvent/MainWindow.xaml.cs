@@ -27,6 +27,7 @@ namespace PuzzleSolvent
         }
 
         private int BoxCount = 16;
+        private int Score;
         private int Rows;
         private GameState CurrentGameState;
         private ImageSplit[] PuzzleImageBoxes;
@@ -39,12 +40,13 @@ namespace PuzzleSolvent
             CurrentGameState = GameState.Starting;
             Grid.SetRow(gPictureGrid, Rows);
             Grid.SetColumn(gPictureGrid, Rows);
+            Score = 100;
         }
 
         private void BtnOpen_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp|All files (*.*)|*.*";
+            openFileDialog.Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|All files (*.*)|*.*";
             openFileDialog.Title = "Select an image file...";
             openFileDialog.CheckFileExists = true;
             openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -87,8 +89,11 @@ namespace PuzzleSolvent
             for (int i = 0; i < randomShuffle; i++)
             {
                 int randomSecondBox = (random.Next() % BoxCount);
+                if (i % BoxCount == 14 || randomSecondBox == 14) continue;
                 SwapBoxes(PuzzleImageBoxes[i % BoxCount], PuzzleImageBoxes[randomSecondBox]);
             }
+            Score = 100;
+            lbHighScore.Content = Score.ToString();
         }
 
         private void SpawnBoxes(System.Drawing.Image image, System.Windows.Controls.Primitives.UniformGrid parent)
@@ -102,6 +107,8 @@ namespace PuzzleSolvent
                 boxes[i].Click += PickBoxes;
                 parent.Children.Add(boxes[i]);
             }
+            //gPictureGrid.Height = image.Height;
+            //gPictureGrid.Width = image.Width;
             PuzzleImageBoxes = boxes;
         }
 
@@ -121,6 +128,8 @@ namespace PuzzleSolvent
         private void SwapBoxes(ImageSplit firstBox, ImageSplit secondBox)
         {
             firstBox.swapChildren(secondBox);
+            Score--;
+            lbHighScore.Content = Score.ToString();
         }
 
         private System.Drawing.Image[] SplitImage(System.Drawing.Image image)
