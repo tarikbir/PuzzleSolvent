@@ -27,11 +27,15 @@ namespace PuzzleSolvent
         }
 
         private int BoxCount = 16;
+        public int ConstantCell1;
+        public int ConstantCell2;
         private int Score;
         private int Rows;
         private GameState CurrentGameState;
         private ImageSplit[] PuzzleImageBoxes;
         private ImageSplit GameStatePickedBox;
+
+
 
         public MainWindow()
         {
@@ -41,6 +45,13 @@ namespace PuzzleSolvent
             Grid.SetRow(gPictureGrid, Rows);
             Grid.SetColumn(gPictureGrid, Rows);
             Score = 100;
+        }
+
+        public int GenerateRandom()
+        {
+            Random random = new Random();
+            ConstantCell1 = (random.Next(0, 15));
+            return ConstantCell1;
         }
 
         private void BtnOpen_Click(object sender, RoutedEventArgs e)
@@ -86,10 +97,11 @@ namespace PuzzleSolvent
         {
             Random random = new Random();
             int randomShuffle = (random.Next()%70)+30;
+            MessageBox.Show("üretilen random sayılar :" + ConstantCell1);
             for (int i = 0; i < randomShuffle; i++)
             {
                 int randomSecondBox = (random.Next() % BoxCount);
-                if (i % BoxCount == 14 || randomSecondBox == 14) continue;
+                if (i % BoxCount == GenerateRandom() || randomSecondBox == GenerateRandom()) continue;
                 SwapBoxes(PuzzleImageBoxes[i % BoxCount], PuzzleImageBoxes[randomSecondBox]);
             }
             Score = 100;
