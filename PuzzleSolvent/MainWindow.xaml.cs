@@ -28,8 +28,7 @@ namespace PuzzleSolvent
         }
 
         private int BoxCount = 16;
-        public int ConstantCell1;
-        //public int randomSecondBox;
+        public static int ConstantCell1;
         private int Score;
         private int Rows;
         private GameState CurrentGameState;
@@ -48,10 +47,10 @@ namespace PuzzleSolvent
             Score = 100;
         }
 
-        public int GenerateRandom()
+        public static int GenerateRandom()
         {
             Random random = new Random();
-            ConstantCell1 = (random.Next(11, 14));
+            ConstantCell1 = (random.Next(10))+1;
             return ConstantCell1;
         }
 
@@ -67,6 +66,7 @@ namespace PuzzleSolvent
             {
                 string filename = openFileDialog.FileName;
                 MessageBox.Show("You have choosen this file :" + filename);
+                MessageBox.Show("üretilen random sayılar :" + GenerateRandom());
 
                 if (CurrentGameState != GameState.Starting)
                 {
@@ -104,11 +104,10 @@ namespace PuzzleSolvent
         {
             Random random = new Random();
             int randomShuffle = (random.Next()%70)+30;
-            //MessageBox.Show("üretilen random sayılar :" + GenerateRandom());
             for (int i = 0; i < randomShuffle; i++)
             {
                 int randomSecondBox = (random.Next() % BoxCount);
-                if (i % BoxCount == GenerateRandom() || randomSecondBox == GenerateRandom()) continue;
+                if (i % BoxCount == ConstantCell1 || randomSecondBox == ConstantCell1) continue;
                 {
                     SwapBoxes(PuzzleImageBoxes[i % BoxCount], PuzzleImageBoxes[randomSecondBox]);
                 }
