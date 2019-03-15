@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace PuzzleSolvent
 
         private int BoxCount = 16;
         public int ConstantCell1;
-        public int ConstantCell2;
+        //public int randomSecondBox;
         private int Score;
         private int Rows;
         private GameState CurrentGameState;
@@ -50,7 +51,7 @@ namespace PuzzleSolvent
         public int GenerateRandom()
         {
             Random random = new Random();
-            ConstantCell1 = (random.Next(0, 15));
+            ConstantCell1 = (random.Next(11, 14));
             return ConstantCell1;
         }
 
@@ -64,10 +65,15 @@ namespace PuzzleSolvent
 
             if (openFileDialog.ShowDialog() == true)
             {
+                string filename = openFileDialog.FileName;
+                MessageBox.Show("You have choosen this file :" + filename);
+
                 if (CurrentGameState != GameState.Starting)
                 {
                     gPictureGrid.Children.Clear();
                 }
+                else
+                    gPictureGrid.Visibility = Visibility.Collapsed;
 
                 var image = System.Drawing.Image.FromFile(openFileDialog.FileName);
                 SpawnBoxes(image, gPictureGrid);
@@ -81,6 +87,7 @@ namespace PuzzleSolvent
             if (CurrentGameState == GameState.Playing)
             {
                 ShuffleBoxes();
+                gPictureGrid.Visibility = Visibility.Visible;
             }
             else
             {
@@ -97,12 +104,14 @@ namespace PuzzleSolvent
         {
             Random random = new Random();
             int randomShuffle = (random.Next()%70)+30;
-            MessageBox.Show("üretilen random sayılar :" + ConstantCell1);
+            //MessageBox.Show("üretilen random sayılar :" + GenerateRandom());
             for (int i = 0; i < randomShuffle; i++)
             {
                 int randomSecondBox = (random.Next() % BoxCount);
                 if (i % BoxCount == GenerateRandom() || randomSecondBox == GenerateRandom()) continue;
-                SwapBoxes(PuzzleImageBoxes[i % BoxCount], PuzzleImageBoxes[randomSecondBox]);
+                {
+                    SwapBoxes(PuzzleImageBoxes[i % BoxCount], PuzzleImageBoxes[randomSecondBox]);
+                }
             }
             Score = 100;
             lbHighScore.Content = Score.ToString();
@@ -139,12 +148,13 @@ namespace PuzzleSolvent
 
         private void SwapBoxes(ImageSplit firstBox, ImageSplit secondBox)
         {
+            //if (firstBox == PuzzleImageBoxes[ConstantCell1] ) PuzzleImageBoxes[ConstantCell1].IsEnabled = false;
             firstBox.swapChildren(secondBox);
             Score--;
             lbHighScore.Content = Score.ToString();
         }
 
-        private System.Drawing.Image[] SplitImage(System.Drawing.Image image)
+        public System.Drawing.Image[] SplitImage(System.Drawing.Image image)
         {
             var imageArray = new System.Drawing.Image[BoxCount];
             int w = image.Width / Rows;
@@ -162,5 +172,25 @@ namespace PuzzleSolvent
             }
             return imageArray;
         }
+
+        public static byte[] ImagetoByteArray(System.Drawing.Image image)
+        {
+            using (MemoryStream mStream = new MemoryStream())
+            {
+                image.Save(mStream, image.RawFormat);
+                return mStream.ToArray();
+            }
+        }
+        
+        public static bool CmpArr(byte[] A, byte[] B)
+        {
+            if (A.Length != B.Length) return false;
+            for(int i = 0 ; i < A.Length ; i++)
+            {
+                if (A[i] != B[i]) return false;
+            }
+            return true;
+        }
+
     }
 }
