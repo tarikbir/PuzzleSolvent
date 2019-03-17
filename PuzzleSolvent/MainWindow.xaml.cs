@@ -28,7 +28,7 @@ namespace PuzzleSolvent
         }
 
         private int BoxCount = 16;
-        private int Score;
+        private int Score = 100;
         private int Rows;
         private GameState CurrentGameState;
         private ImageSplit[] PuzzleImageBoxes;
@@ -41,14 +41,6 @@ namespace PuzzleSolvent
             CurrentGameState = GameState.Starting;
             Grid.SetRow(gPictureGrid, Rows);
             Grid.SetColumn(gPictureGrid, Rows);
-            Score = 100;
-        }
-
-        public static int GenerateRandom()
-        {
-            Random random = new Random();
-            int number = (random.Next(10))+1;
-            return number;
         }
 
         private void BtnOpen_Click(object sender, RoutedEventArgs e)
@@ -68,6 +60,7 @@ namespace PuzzleSolvent
                 if (CurrentGameState != GameState.Starting)
                 {
                     gPictureGrid.Children.Clear();
+                    btnShuffle.IsEnabled = true;
                 }
 
                 var image = System.Drawing.Image.FromFile(openFileDialog.FileName);
@@ -99,17 +92,20 @@ namespace PuzzleSolvent
         {
             Random random = new Random();
             int randomShuffle = (random.Next()%70)+30;
-            int constant = 0;
+            foreach(var item in PuzzleImageBoxes)
+            {
+                item.IsEnabled = true;
+            }
             for (int i = 0; i < randomShuffle; i++)
             {
                 int randomSecondBox = (random.Next() % BoxCount);
-                if (i % BoxCount == constant || randomSecondBox == constant) continue; //TODO: Change later.
-                {
-                    SwapBoxes(PuzzleImageBoxes[i % BoxCount], PuzzleImageBoxes[randomSecondBox]);
-                }
+                SwapBoxes(PuzzleImageBoxes[i % BoxCount], PuzzleImageBoxes[randomSecondBox]);
             }
-            Score = 100;
-            lbHighScore.Content = Score.ToString();
+            ChangeScore(100);
+            if (CheckGameForCompletion(true))
+            {
+                btnShuffle.IsEnabled = false;
+            }
         }
 
         private void SpawnBoxes(System.Drawing.Image image, System.Windows.Controls.Primitives.UniformGrid parent)
@@ -119,7 +115,7 @@ namespace PuzzleSolvent
             for (int i = 0; i < BoxCount; i++)
             {
                 var split = images[i];
-                boxes[i] = new ImageSplit(split);
+                boxes[i] = new ImageSplit(split,i);
                 boxes[i].Click += PickBoxes;
                 parent.Children.Add(boxes[i]);
             }
@@ -128,28 +124,26 @@ namespace PuzzleSolvent
 
         private void PickBoxes(object sender, RoutedEventArgs e)
         {
-            if (GameStatePickedBox != null)
+            ImageSplit pickedBox = (ImageSplit) e.Source;
+            if (GameStatePickedBox != null) //User has picked a box before.
             {
-                SwapBoxes((ImageSplit)e.Source, GameStatePickedBox);
+                SwapBoxes(pickedBox, GameStatePickedBox);
+                CheckGameForCompletion(false);
                 GameStatePickedBox = null;
             }
-            else
+            else //User has picked a new box.
             {
-                GameStatePickedBox = (ImageSplit)e.Source;
+                GameStatePickedBox = pickedBox;
             }
         }
 
         private void SwapBoxes(ImageSplit firstBox, ImageSplit secondBox)
         {
-            /* IF (BUTTON = VALID POSITION)
-             * THEN BUTTON.ENABLED = FALSE
-             * */
             firstBox.swapChildren(secondBox);
-            Score--;
-            lbHighScore.Content = Score.ToString();
+            ChangeScore(--Score);
         }
 
-        public System.Drawing.Image[] SplitImage(System.Drawing.Image image)
+        private System.Drawing.Image[] SplitImage(System.Drawing.Image image)
         {
             var imageArray = new System.Drawing.Image[BoxCount];
             int w = image.Width / Rows;
@@ -166,6 +160,48 @@ namespace PuzzleSolvent
                 }
             }
             return imageArray;
+        }
+
+        private int CheckPuzzleForCorrectness()
+        {
+            int j = 0, correctNumberOfBoxes = 0;
+            foreach (var item in PuzzleImageBoxes)
+            {
+                if (item.ID == j) //TODO: Fix Comparison
+                {
+                    item.IsEnabled = false;
+                    correctNumberOfBoxes++;
+                }
+                j++;
+            }
+            return correctNumberOfBoxes;
+        }
+
+        private bool CheckGameForCompletion(bool isShuffle)
+        {
+            int correctBoxes = CheckPuzzleForCorrectness();
+            bool gameReady = false;
+            if (isShuffle)
+            {
+                if (correctBoxes > 1)
+                {
+                    gameReady = true;
+                }
+            }
+
+            if (correctBoxes == BoxCount) //Game is over.
+            {
+                MessageBox.Show("GAEM OVAH");
+                CurrentGameState = GameState.End;
+                return false;
+            }
+            return gameReady;
+        }
+
+        private void ChangeScore(int score)
+        {
+            Score = score;
+            lbHighScore.Content = score.ToString();
         }
     }
 }
