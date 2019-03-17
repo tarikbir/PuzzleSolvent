@@ -28,14 +28,11 @@ namespace PuzzleSolvent
         }
 
         private int BoxCount = 16;
-        public static int ConstantCell1;
         private int Score;
         private int Rows;
         private GameState CurrentGameState;
         private ImageSplit[] PuzzleImageBoxes;
         private ImageSplit GameStatePickedBox;
-
-
 
         public MainWindow()
         {
@@ -50,8 +47,8 @@ namespace PuzzleSolvent
         public static int GenerateRandom()
         {
             Random random = new Random();
-            ConstantCell1 = (random.Next(10))+1;
-            return ConstantCell1;
+            int number = (random.Next(10))+1;
+            return number;
         }
 
         private void BtnOpen_Click(object sender, RoutedEventArgs e)
@@ -65,20 +62,19 @@ namespace PuzzleSolvent
             if (openFileDialog.ShowDialog() == true)
             {
                 string filename = openFileDialog.FileName;
-                MessageBox.Show("You have choosen this file :" + filename);
-                MessageBox.Show("üretilen random sayılar :" + GenerateRandom());
+                //MessageBox.Show("You have chosen this file :" + filename);
+                //MessageBox.Show("üretilen random sayılar :" + GenerateRandom());
 
                 if (CurrentGameState != GameState.Starting)
                 {
                     gPictureGrid.Children.Clear();
                 }
-                else
-                    gPictureGrid.Visibility = Visibility.Collapsed;
 
                 var image = System.Drawing.Image.FromFile(openFileDialog.FileName);
                 SpawnBoxes(image, gPictureGrid);
 
                 CurrentGameState = GameState.Playing;
+                ShuffleBoxes();
             }
         }
 
@@ -87,7 +83,6 @@ namespace PuzzleSolvent
             if (CurrentGameState == GameState.Playing)
             {
                 ShuffleBoxes();
-                gPictureGrid.Visibility = Visibility.Visible;
             }
             else
             {
@@ -104,10 +99,11 @@ namespace PuzzleSolvent
         {
             Random random = new Random();
             int randomShuffle = (random.Next()%70)+30;
+            int constant = 0;
             for (int i = 0; i < randomShuffle; i++)
             {
                 int randomSecondBox = (random.Next() % BoxCount);
-                if (i % BoxCount == ConstantCell1 || randomSecondBox == ConstantCell1) continue;
+                if (i % BoxCount == constant || randomSecondBox == constant) continue; //TODO: Change later.
                 {
                     SwapBoxes(PuzzleImageBoxes[i % BoxCount], PuzzleImageBoxes[randomSecondBox]);
                 }
@@ -127,8 +123,6 @@ namespace PuzzleSolvent
                 boxes[i].Click += PickBoxes;
                 parent.Children.Add(boxes[i]);
             }
-            //gPictureGrid.Height = image.Height;
-            //gPictureGrid.Width = image.Width;
             PuzzleImageBoxes = boxes;
         }
 
@@ -147,7 +141,9 @@ namespace PuzzleSolvent
 
         private void SwapBoxes(ImageSplit firstBox, ImageSplit secondBox)
         {
-            //if (firstBox == PuzzleImageBoxes[ConstantCell1] ) PuzzleImageBoxes[ConstantCell1].IsEnabled = false;
+            /* IF (BUTTON = VALID POSITION)
+             * THEN BUTTON.ENABLED = FALSE
+             * */
             firstBox.swapChildren(secondBox);
             Score--;
             lbHighScore.Content = Score.ToString();
@@ -171,25 +167,5 @@ namespace PuzzleSolvent
             }
             return imageArray;
         }
-
-        public static byte[] ImagetoByteArray(System.Drawing.Image image)
-        {
-            using (MemoryStream mStream = new MemoryStream())
-            {
-                image.Save(mStream, image.RawFormat);
-                return mStream.ToArray();
-            }
-        }
-        
-        public static bool CmpArr(byte[] A, byte[] B)
-        {
-            if (A.Length != B.Length) return false;
-            for(int i = 0 ; i < A.Length ; i++)
-            {
-                if (A[i] != B[i]) return false;
-            }
-            return true;
-        }
-
     }
 }
