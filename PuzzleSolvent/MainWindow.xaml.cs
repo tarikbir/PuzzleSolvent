@@ -27,14 +27,16 @@ namespace PuzzleSolvent
             End
         }
 
-        private int BoxCount = 16;
+        private static int BoxCount = 16;
         public static int ConstantCell1;
         private int Score;
-        private int Rows;
+        private static int Rows;
         private GameState CurrentGameState;
         private ImageSplit[] PuzzleImageBoxes;
         private ImageSplit GameStatePickedBox;
-
+        string filename1;
+        ImageSplit[] boxes = new ImageSplit[BoxCount];
+        
 
 
         public MainWindow()
@@ -54,7 +56,7 @@ namespace PuzzleSolvent
             return ConstantCell1;
         }
 
-        private void BtnOpen_Click(object sender, RoutedEventArgs e)
+        public void BtnOpen_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|All files (*.*)|*.*";
@@ -64,8 +66,8 @@ namespace PuzzleSolvent
 
             if (openFileDialog.ShowDialog() == true)
             {
-                string filename = openFileDialog.FileName;
-                MessageBox.Show("You have choosen this file :" + filename);
+                filename1 = openFileDialog.FileName;
+                MessageBox.Show("You have choosen this file :" + filename1);
                 MessageBox.Show("üretilen random sayılar :" + GenerateRandom());
 
                 if (CurrentGameState != GameState.Starting)
@@ -116,7 +118,7 @@ namespace PuzzleSolvent
             lbHighScore.Content = Score.ToString();
         }
 
-        private void SpawnBoxes(System.Drawing.Image image, System.Windows.Controls.Primitives.UniformGrid parent)
+        public void SpawnBoxes(System.Drawing.Image image, System.Windows.Controls.Primitives.UniformGrid parent)
         {
             ImageSplit[] boxes = new ImageSplit[BoxCount];
             var images = SplitImage(image);
@@ -147,13 +149,13 @@ namespace PuzzleSolvent
 
         private void SwapBoxes(ImageSplit firstBox, ImageSplit secondBox)
         {
-            //if (firstBox == PuzzleImageBoxes[ConstantCell1] ) PuzzleImageBoxes[ConstantCell1].IsEnabled = false;
+            if (firstBox == PuzzleImageBoxes[ConstantCell1]) PuzzleImageBoxes[ConstantCell1].IsEnabled = false;
             firstBox.swapChildren(secondBox);
             Score--;
             lbHighScore.Content = Score.ToString();
         }
 
-        public System.Drawing.Image[] SplitImage(System.Drawing.Image image)
+        public static System.Drawing.Image[] SplitImage(System.Drawing.Image image)
         {
             var imageArray = new System.Drawing.Image[BoxCount];
             int w = image.Width / Rows;
@@ -172,24 +174,50 @@ namespace PuzzleSolvent
             return imageArray;
         }
 
-        public static byte[] ImagetoByteArray(System.Drawing.Image image)
+        private int GetMax()
         {
-            using (MemoryStream mStream = new MemoryStream())
-            {
-                image.Save(mStream, image.RawFormat);
-                return mStream.ToArray();
-            }
-        }
-        
-        public static bool CmpArr(byte[] A, byte[] B)
-        {
-            if (A.Length != B.Length) return false;
-            for(int i = 0 ; i < A.Length ; i++)
-            {
-                if (A[i] != B[i]) return false;
-            }
-            return true;
+            var Max = File.ReadAllLines(@"C:\EYS.txt").Select(int.Parse).Max();
+            return Max;
         }
 
+        private void writeTextData()
+        {
+            using (StreamWriter Writer = new StreamWriter("EYS.txt"))
+            {
+                Writer.WriteLine(Score);
+            }
+        }
+
+    
+        public void BtnCompare_Click(object sender, RoutedEventArgs e)
+        {
+            string image1, image2;
+            bool flag = false;
+            var img1 = new Bitmap(filename1);
+            var img2 = boxes[0].bitmap;
+            if (img1.Width == img2.Width && img1.Height == img2.Height)
+            {
+                for (int i = 0; i < img1.Height; i++)
+                {
+                    for (int j = 0; j < img1.Width; j++)
+                    {
+                        image1 = img1.GetPixel(j, i).ToString();
+                        image2 = img2.GetPixel(i, j).ToString();
+                        if (image1 != image2)
+                        {
+                            flag = false;
+                            break;
+                        }
+                    }
+                }
+                if (flag == false)
+                    MessageBox.Show("Images are not same");
+                else
+                    MessageBox.Show(" Images are same");
+            }
+            else
+                MessageBox.Show("Cannot compare these two!");
+        }
     }
 }
+    
