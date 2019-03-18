@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Emgu.CV;
+using Emgu.CV.Structure;
+using System;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
@@ -11,6 +13,7 @@ namespace PuzzleSolvent
     public partial class ImageSplit : Button, IComparable
     {
         public int ID;
+        private Emgu.CV.Image<Bgr, Byte> cvImage;
 
         public ImageSplit(System.Drawing.Image split, int id)
         {
@@ -25,6 +28,8 @@ namespace PuzzleSolvent
             ms.Seek(0, SeekOrigin.Begin);
             bitmap.StreamSource = ms;
             bitmap.EndInit();
+
+            cvImage = new Emgu.CV.Image<Bgr, Byte>((System.Drawing.Bitmap) split);
 
             AddChild(new System.Windows.Controls.Image() { Name="ButtonImage", Source = bitmap, Stretch=Stretch.Uniform, Margin = new Thickness(0) });
         }

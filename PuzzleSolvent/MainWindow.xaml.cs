@@ -41,6 +41,7 @@ namespace PuzzleSolvent
             CurrentGameState = GameState.Starting;
             Grid.SetRow(gPictureGrid, Rows);
             Grid.SetColumn(gPictureGrid, Rows);
+            lbHighestScore.Content = GetMaximumScore();
         }
 
         private void BtnOpen_Click(object sender, RoutedEventArgs e)
@@ -68,6 +69,7 @@ namespace PuzzleSolvent
 
                 CurrentGameState = GameState.Playing;
                 ShuffleBoxes();
+                GameStatePickedBox = null;
             }
         }
 
@@ -106,6 +108,7 @@ namespace PuzzleSolvent
             {
                 btnShuffle.IsEnabled = false;
             }
+            GameStatePickedBox = null;
         }
 
         private void SpawnBoxes(System.Drawing.Image image, System.Windows.Controls.Primitives.UniformGrid parent)
@@ -191,11 +194,35 @@ namespace PuzzleSolvent
 
             if (correctBoxes == BoxCount) //Game is over.
             {
-                MessageBox.Show("GAEM OVAH");
+                MessageBox.Show("Puzzle completed. Score: " + Score);
                 CurrentGameState = GameState.End;
+                WriteHighScores();
                 return false;
             }
             return gameReady;
+        }
+
+        private int GetMaximumScore()
+        {
+            int max;
+            try
+            {
+                max = File.ReadAllLines("Highscores.txt").Select(int.Parse).Max();
+            }
+            catch
+            {
+                max = -1;
+            }
+            
+            return max;
+        }
+
+        private void WriteHighScores()
+        {
+            using (StreamWriter Writer = new StreamWriter("Highscores.txt", true))
+            {
+                Writer.WriteLine(Score);
+            }
         }
 
         private void ChangeScore(int score)
