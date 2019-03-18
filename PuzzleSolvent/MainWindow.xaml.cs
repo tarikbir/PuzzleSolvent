@@ -55,8 +55,6 @@ namespace PuzzleSolvent
             if (openFileDialog.ShowDialog() == true)
             {
                 string filename = openFileDialog.FileName;
-                //MessageBox.Show("You have chosen this file :" + filename);
-                //MessageBox.Show("üretilen random sayılar :" + GenerateRandom());
 
                 if (CurrentGameState != GameState.Starting)
                 {
@@ -102,6 +100,7 @@ namespace PuzzleSolvent
             {
                 int randomSecondBox = (random.Next() % BoxCount);
                 SwapBoxes(PuzzleImageBoxes[i % BoxCount], PuzzleImageBoxes[randomSecondBox]);
+                CheckImage(PuzzleImageBoxes[1]);
             }
             ChangeScore(100);
             if (CheckGameForCompletion(true))
@@ -149,8 +148,7 @@ namespace PuzzleSolvent
         private System.Drawing.Image[] SplitImage(System.Drawing.Image image)
         {
             var imageArray = new System.Drawing.Image[BoxCount];
-            int w = image.Width / Rows;
-            int h = image.Height / Rows;
+            int w = image.Width / Rows, h = image.Height / Rows;
             for (int i = 0; i < Rows; i++)
             {
                 for (int j = 0; j < Rows; j++)
@@ -165,14 +163,13 @@ namespace PuzzleSolvent
             return imageArray;
         }
 
-        private int CheckPuzzleForCorrectness()
+        private int CheckPuzzleForCorrectnessWithID()
         {
             int j = 0, correctNumberOfBoxes = 0;
             foreach (var item in PuzzleImageBoxes)
             {
-                if (item.ID == j) //TODO: Fix Comparison
+                if (item.ID == j)
                 {
-                    item.IsEnabled = false;
                     correctNumberOfBoxes++;
                 }
                 j++;
@@ -180,9 +177,24 @@ namespace PuzzleSolvent
             return correctNumberOfBoxes;
         }
 
+        private bool CheckImage(ImageSplit split)
+        {
+            foreach (var item in PuzzleImageBoxes)
+            {
+                if (split.CompareTo(item) == 1)
+                {
+                    
+                }
+            }
+
+
+            //split.IsEnabled = false;
+            return true;
+        }
+
         private bool CheckGameForCompletion(bool isShuffle)
         {
-            int correctBoxes = CheckPuzzleForCorrectness();
+            int correctBoxes = CheckPuzzleForCorrectnessWithID();
             bool gameReady = false;
             if (isShuffle)
             {
