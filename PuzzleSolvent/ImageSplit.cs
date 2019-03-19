@@ -10,14 +10,13 @@ namespace PuzzleSolvent
 {
     public partial class ImageSplit : Button
     {
-        public BitmapImage bitmap = new BitmapImage();
         public ImageSplit(System.Drawing.Image split)
         {
             BorderThickness = new Thickness(0, 0, 0, 0);
             Background = new SolidColorBrush(Color.FromRgb(0, 0, 0)) { Opacity = 0 };
             Margin = new Thickness(0);
 
-            
+            BitmapImage bitmap = new BitmapImage();
             bitmap.BeginInit();
             MemoryStream ms = new MemoryStream();
             split.Save(ms, ImageFormat.Bmp);
@@ -25,8 +24,7 @@ namespace PuzzleSolvent
             bitmap.StreamSource = ms;
             bitmap.EndInit();
 
-            AddChild(new System.Windows.Controls.Image() { Name = "ButtonImage", Source = bitmap, Stretch = Stretch.Uniform, Margin = new Thickness(0) });
-
+            AddChild(new System.Windows.Controls.Image() { Name="ButtonImage", Source = bitmap, Stretch=Stretch.Uniform, Margin = new Thickness(0) });
         }
 
         internal void swapChildren(ImageSplit secondBox)
