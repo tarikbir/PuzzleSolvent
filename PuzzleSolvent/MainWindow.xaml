@@ -65,5 +65,7 @@
         </Grid>
         <Label Content="High Score" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Height="30" Width="75" FontFamily="QuigleyWiggly" FontSize="16" Foreground="#4C364D" HorizontalContentAlignment="Center"/>
         <Label x:Name="lbHighScore"  Content="100" HorizontalAlignment="Right" Margin="0,30,10,0" VerticalAlignment="Top" Height="30" Width="75" FontFamily="QuigleyWiggly" FontSize="20" Foreground="#4C364D" HorizontalContentAlignment="Center"/>
+        <Label Content="Highest Score" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="30" Width="90" FontFamily="QuigleyWiggly" FontSize="16" Foreground="#4C364D" HorizontalContentAlignment="Center"/>
+        <Label x:Name="lbHighestScore"  Content="100" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top" Height="30" Width="75" FontFamily="QuigleyWiggly" FontSize="20" Foreground="#4C364D" HorizontalContentAlignment="Center"/>
     </Grid>
 </Window>
