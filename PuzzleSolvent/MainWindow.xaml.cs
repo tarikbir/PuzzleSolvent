@@ -165,6 +165,7 @@ namespace PuzzleSolvent
                 var firstBoxCorrect = CheckImage(firstBox);
                 var secondBoxCorrect = CheckImage(secondBox);
                 int deduction = (firstBoxCorrect ? 0 : 1) + (secondBoxCorrect ? 0 : 1);
+                if (firstBox.buttonID == secondBox.buttonID) return;
                 ChangeScore(Score - deduction);
             }
         }
