@@ -13,11 +13,11 @@ namespace PuzzleSolvent
     public partial class ImageSplit : Button, IComparable
     {
         public int buttonID;
-        private Emgu.CV.Image<Bgr, Byte> cvImage;
+        private Emgu.CV.Image<Bgr, byte> cvImage;
 
         public ImageSplit(System.Drawing.Image split, int id)
         {
-            cvImage = new Emgu.CV.Image<Bgr, Byte>((System.Drawing.Bitmap)split);
+            cvImage = new Emgu.CV.Image<Bgr, byte>((System.Drawing.Bitmap)split);
             BorderThickness = new Thickness(0, 0, 0, 0);
             Background = new SolidColorBrush(Color.FromRgb(0, 0, 0)) { Opacity = 0 };
             Margin = new Thickness(0);
@@ -65,38 +65,33 @@ namespace PuzzleSolvent
         public int CompareTo(object obj)
         {
             int comparison = 0;
-            int threshold = 10;
-            System.Drawing.Image secondObj;
+            int threshold = 30;
+            Image<Bgr, byte> secondObj;
             try
             {
                 if (obj == null) throw new NullReferenceException();
-                secondObj = obj as System.Drawing.Image;
+                secondObj = new Emgu.CV.Image<Bgr, byte>(obj as System.Drawing.Bitmap);
             }
             catch
             {
                 return -1;
             }
 
-            var secondObjBitmap = new Emgu.CV.Image<Bgr, Byte>(secondObj as System.Drawing.Bitmap);
+            var bmp = cvImage.AbsDiff(secondObj).CountNonzero();
+            if (bmp[0] + bmp[1] + bmp[2] < threshold) comparison = 1;
 
-            var bmp = cvImage.AbsDiff(secondObjBitmap).ToBitmap();
-            bmp.Save("absdiff.bmp");
-            cvImage.Save("cvimage.bmp");
-            secondObjBitmap.Save("secondobjbitmap.bmp");
-            for (int i = 0; i < bmp.Height; i++)
-            {
-                for (int j = 0; j < bmp.Width; j++)
-                {
-                    if (bmp.GetPixel(j,i).R + bmp.GetPixel(j, i).G + bmp.GetPixel(j, i).B < 3 * threshold)
-                    {
-                        comparison++;
-                    }
-                }
-            }
+            //for (int i = 0; i < bmp.Height; i++)
+            //{
+            //    for (int j = 0; j < bmp.Width; j++)
+            //    {
+            //        if (bmp.GetPixel(j,i).R + bmp.GetPixel(j, i).G + bmp.GetPixel(j, i).B < 3 * threshold)
+            //        {
+            //            comparison++;
+            //        }
+            //    }
+            //}
 
-            comparison = comparison / (cvImage.Height * cvImage.Width);
-
-            return comparison;
+            return comparison; //>= (cvImage.Height * cvImage.Width - threshold) ? 1 : 0;
         }
     }
 }

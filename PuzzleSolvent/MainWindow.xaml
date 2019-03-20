@@ -59,7 +59,7 @@
                 <DropShadowEffect/>
             </Button.Effect>
         </Button>
-        <Grid Margin="0,70,0,0" Background="#4C364D" >
+        <Grid Margin="0,70,0,0" Background="#4C364D" AllowDrop="True" Drop="Grid_Drop" >
             <UniformGrid x:Name="gPictureGrid" Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center">
             </UniformGrid>
         </Grid>

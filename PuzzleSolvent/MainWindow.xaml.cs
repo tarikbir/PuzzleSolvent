@@ -35,6 +35,7 @@ namespace PuzzleSolvent
         private System.Drawing.Image[] PuzzleImageSplits; 
         private ImageSplit GameStatePickedBox;
         private int ButtonsCompleted;
+        private string FilePath;
 
         public MainWindow()
         {
@@ -43,21 +44,32 @@ namespace PuzzleSolvent
             CurrentGameState = GameState.Starting;
             Grid.SetRow(gPictureGrid, Rows);
             Grid.SetColumn(gPictureGrid, Rows);
-            lbHighestScore.Content = GetMaximumScore();
+            var getHighScore = GetMaximumScore();
+            lbHighestScore.Content = (getHighScore == -99 ? "No Score" : getHighScore.ToString());
         }
 
         private void BtnOpen_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|All files (*.*)|*.*";
-            openFileDialog.Title = "Select an image file...";
-            openFileDialog.CheckFileExists = true;
-            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            ButtonsCompleted = 0;
-            GameStatePickedBox = null;
-            if (openFileDialog.ShowDialog() == true)
+            bool? fileOpened;
+            if (String.IsNullOrEmpty(FilePath))
             {
-                string filename = openFileDialog.FileName;
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|All files (*.*)|*.*";
+                openFileDialog.Title = "Select an image file...";
+                openFileDialog.CheckFileExists = true;
+                openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                fileOpened = openFileDialog.ShowDialog();
+                FilePath = openFileDialog.FileName;
+            }
+            else
+            {
+                fileOpened = true;
+            }
+
+            if (fileOpened == true)
+            {
+                ButtonsCompleted = 0;
+                GameStatePickedBox = null;
 
                 if (CurrentGameState != GameState.Starting)
                 {
@@ -65,12 +77,14 @@ namespace PuzzleSolvent
                     btnShuffle.IsEnabled = true;
                 }
 
-                var image = System.Drawing.Image.FromFile(openFileDialog.FileName);
+                var image = System.Drawing.Image.FromFile(FilePath);
                 SpawnBoxes(image, gPictureGrid);
 
                 CurrentGameState = GameState.Playing;
                 ShuffleBoxes();
             }
+
+            FilePath = String.Empty;
         }
 
         private void BtnShuffle_Click(object sender, RoutedEventArgs e)
@@ -93,8 +107,9 @@ namespace PuzzleSolvent
         private void ShuffleBoxes()
         {
             Random random = new Random();
-            int randomShuffle = (random.Next()%70)+30;
-            foreach(var item in PuzzleImageBoxes)
+            int randomShuffle = (random.Next()%30)+10;
+            ButtonsCompleted = 0;
+            foreach (var item in PuzzleImageBoxes)
             {
                 item.IsEnabled = true;
             }
@@ -193,7 +208,7 @@ namespace PuzzleSolvent
                     CheckImage(item);
                 }
 
-                if (ButtonsCompleted > 1)
+                if (ButtonsCompleted >= 1)
                 {
                     gameReady = true;
                 }
@@ -204,6 +219,8 @@ namespace PuzzleSolvent
                 MessageBox.Show("Puzzle completed. Score: " + Score, "Game Over", MessageBoxButton.OK, MessageBoxImage.Information);
                 CurrentGameState = GameState.End;
                 WriteHighScores();
+                var getHighScore = GetMaximumScore();
+                lbHighestScore.Content = (getHighScore == -99 ? "No Score" : getHighScore.ToString());
                 return false;
             }
             return gameReady;
@@ -214,11 +231,11 @@ namespace PuzzleSolvent
             int max;
             try
             {
-                max = File.ReadAllLines("Highscores.txt").Select(int.Parse).Max();
+                max = (int) File.ReadAllLines("Highscores.txt").Select(Int32.Parse).OrderByDescending(x=>x).Take(1).ToArray()[0];
             }
             catch
             {
-                max = -1;
+                max = -99;
             }
             
             return max;
@@ -234,8 +251,18 @@ namespace PuzzleSolvent
 
         private void ChangeScore(int score)
         {
-            Score = score;
+            Score = score < 0 ? 0 : score % 101;
             lbHighScore.Content = Score;
+        }
+
+        private void Grid_Drop(object sender, DragEventArgs e)
+        {
+            if(e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                FilePath = files[0];
+                BtnOpen_Click(sender, e);
+            }
         }
     }
 }
