@@ -12,7 +12,7 @@ namespace PuzzleSolvent
 {
     public partial class ImageSplit : Button, IComparable
     {
-        public int ID;
+        public int buttonID;
         private Emgu.CV.Image<Bgr, Byte> cvImage;
 
         public ImageSplit(System.Drawing.Image split, int id)
@@ -21,11 +21,10 @@ namespace PuzzleSolvent
             BorderThickness = new Thickness(0, 0, 0, 0);
             Background = new SolidColorBrush(Color.FromRgb(0, 0, 0)) { Opacity = 0 };
             Margin = new Thickness(0);
-            ID = id;
+            buttonID = id;
             BitmapImage bitmap = new BitmapImage();
             bitmap.BeginInit();
             MemoryStream ms = new MemoryStream();
-            //split.Save(ms, ImageFormat.Bmp);
             cvImage.Bitmap.Save(ms, ImageFormat.Bmp);
             ms.Seek(0, SeekOrigin.Begin);
             bitmap.StreamSource = ms;
@@ -37,13 +36,10 @@ namespace PuzzleSolvent
         internal void swapChildren(ImageSplit secondBox)
         {
             var temp = Content;
-            var tempID = ID;
             var tempCvImage = cvImage;
             Content = secondBox.Content;
-            ID = secondBox.ID;
             cvImage = secondBox.cvImage;
             secondBox.Content = temp;
-            secondBox.ID = tempID;
             secondBox.cvImage = tempCvImage;
         }
 
@@ -70,18 +66,23 @@ namespace PuzzleSolvent
         {
             int comparison = 0;
             int threshold = 10;
-            ImageSplit secondObj;
+            System.Drawing.Image secondObj;
             try
             {
                 if (obj == null) throw new NullReferenceException();
-                secondObj = obj as ImageSplit;
+                secondObj = obj as System.Drawing.Image;
             }
             catch
             {
                 return -1;
             }
 
-            var bmp = cvImage.AbsDiff(secondObj.cvImage).ToBitmap();
+            var secondObjBitmap = new Emgu.CV.Image<Bgr, Byte>(secondObj as System.Drawing.Bitmap);
+
+            var bmp = cvImage.AbsDiff(secondObjBitmap).ToBitmap();
+            bmp.Save("absdiff.bmp");
+            cvImage.Save("cvimage.bmp");
+            secondObjBitmap.Save("secondobjbitmap.bmp");
             for (int i = 0; i < bmp.Height; i++)
             {
                 for (int j = 0; j < bmp.Width; j++)
