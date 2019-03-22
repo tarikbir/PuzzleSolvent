@@ -16,6 +16,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+//160202103 Tarık Bir
+//150202040 Yasin Emir Kutlu
+
 namespace PuzzleSolvent
 {
     public partial class MainWindow : Window
